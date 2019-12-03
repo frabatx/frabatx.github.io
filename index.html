@@ -14,6 +14,7 @@
 </head>
 
 <body id="page-top">
+    
     <nav class="navbar navbar-light navbar-expand-lg fixed-top" id="mainNav" style="background-color: rgba(0,0,0,0.7);padding: 1px 16px;">
         <div class="container"><a class="navbar-brand js-scroll-trigger" href="#page-top" style="width: 170px;"><img class=" d-inline-block align" src="assets/img/Sigillo_Università_di_Trento.svg" style="height: 50px;margin: 0px 10px;filter: invert(100%) ;font-size: 3vmin; color: rgb(255,255,255);margin-top: 6px;">Università di Trento<br></a>
             <button
@@ -109,30 +110,6 @@
         </div>
     </section>
 
-    <script>
-        document.getElementById("call").onclick = function() {openStuff()};
-
-        //funzione che prende i vari link e li fa eseguire a caso
-        var links = [
-        "www.google.com",
-        "www.wikipedia.com",
-        "www.republica.com"];
-
-        function openStuff () {
-        // get a random number between 0 and the number of links
-        var randIdx = Math.random() * links.length;
-        // round it, so it can be used as array index
-        randIdx = parseInt(randIdx, 10);
-        // construct the link to be opened
-        var link = 'http://' + links[randIdx];
-        // open it in a new window / tab (depends on browser setting)
-        window.open(link);
-        links.splice(randIdx, 1);
-        }
-    </script>
-
-
-
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
@@ -140,6 +117,62 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
     <script src="assets/js/creative.js"></script>
+    <script src="https://linkdb-661c.restdb.io/assets/js/eventsource.min.js"></script>
+    <script src="https://linkdb-661c.restdb.io/rest/_jsapi.js?plainjs=true"></script>
+
+    <script>
+        // initialize empty list
+        var myLinks = [];
+        // set parameters to access DB
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": "https://linkdb-661c.restdb.io/rest/copy-of-links",
+            "method": "GET",
+            "headers": {
+                "content-type": "application/json",
+                "x-apikey": "5de589a14658275ac9dc21e7",
+                "cache-control": "no-cache"
+            }
+        }
+        // jquery request to get single row from DB
+        $.ajax(settings).done(function (response) {
+            var randIdx = Math.round(Math.random() * response.length);
+            myLinks.push(response[randIdx]);
+            console.log(myLinks);
+        });
+
+        // onclick function of button "complia il questionario"
+        document.getElementById("call").onclick = function() {openStuff()};
+
+        //onclick function that opens link
+        function openStuff(){
+            if (typeof myLinks!== 'undefined' && myLinks.length > 0) {
+                // construct the link to be opened
+                console.log(myLinks[0]);
+                // open it in a new window / tab (depends on browser setting)
+                window.open(myLinks[0].link);
+                //set parameters for DELETE call to DB
+                var settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": "https://linkdb-661c.restdb.io/rest/copy-of-links/" + myLinks[0]._id,
+                    "method": "DELETE",
+                    "headers": {
+                    "content-type": "application/json",
+                    "x-apikey": "5de589a14658275ac9dc21e7",
+                    "cache-control": "no-cache"
+                    }
+                }
+                $.ajax(settings).done(function (response) {
+                    console.log(response);
+                });
+                //once the button is pressed, set onclick function to empty
+                document.getElementById("call").onclick = function() {console.log("GET FUCKED")};
+            }
+        }
+    </script>
+
 </body>
 
 </html>
